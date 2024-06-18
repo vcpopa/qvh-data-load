@@ -160,11 +160,11 @@ if __name__ == "__main__":
                 fileshare_path=f"Uploads/IQPR/ElectiveRecovery/{file}",
                 local_file_path=f"./{run_id}/{file_name}",
             )
-            # archive_in_fileshare(
-            #     fileshare_name="qvh",
-            #     source_path=f"Uploads/IQPR/ElectiveRecovery/{file}",
-            #     destination_path=f"Uploads/IQPR/Processed/{file}",
-            # )
+            archive_in_fileshare(
+                fileshare_name="qvh",
+                source_path=f"Uploads/IQPR/ElectiveRecovery/{file}",
+                destination_path=f"Uploads/IQPR/Processed",
+            )
             data = process_file(f"./{run_id}/{file_name}")
             if previous_data is not None and previous_data.equals(data):
                 print(
@@ -180,8 +180,50 @@ if __name__ == "__main__":
                         index=False,
                     )
                 data_changed=True
-                # merge_data(source="staging.Metrics_Generic", target="scd.Metric")
-                # log_file(file_name=file_name, source="FileShare")
+                merge_query ="""MERGE INTO [scd].[Metrics_ElectiveRecovery] AS target
+USING [staging].[Metrics_ElectiveRecovery] AS source
+ON (
+    target.[ElectiveRecoveryGroup] = source.[ElectiveRecoveryGroup] AND
+    target.[ReportingPODDescription] = source.[ReportingPODDescription] AND
+    target.[OPS] = source.[OPS] AND
+    target.[SpecialtyDescription] = source.[SpecialtyDescription] AND
+    target.[OnSite] = source.[OnSite] AND
+    target.[Month] = source.[Month]
+)
+WHEN MATCHED THEN
+    UPDATE SET
+        target.[Plan] = CASE WHEN source.[Plan] IS NOT NULL THEN source.[Plan] ELSE target.[Plan] END,
+        target.[Activity] = CASE WHEN source.[Activity] IS NOT NULL THEN source.[Activity] ELSE target.[Activity] END,
+        target.[Variance] = CASE WHEN source.[Variance] IS NOT NULL THEN source.[Variance] ELSE target.[Variance] END,
+        target.[SourceFile] = source.[SourceFile]
+WHEN NOT MATCHED BY TARGET THEN
+    INSERT (
+        [ElectiveRecoveryGroup],
+        [ReportingPODDescription],
+        [OPS],
+        [SpecialtyDescription],
+        [OnSite],
+        [Month],
+        [Plan],
+        [Activity],
+        [Variance],
+        [SourceFile]
+    )
+    VALUES (
+        source.[ElectiveRecoveryGroup],
+        source.[ReportingPODDescription],
+        source.[OPS],
+        source.[SpecialtyDescription],
+        source.[OnSite],
+        source.[Month],
+        source.[Plan],
+        source.[Activity],
+        source.[Variance],
+        source.[SourceFile]
+    );
+                """
+                execute_query(merge_query)
+                log_file(file_name=file_name, source="FileShare")
                 previous_data = data
     else:
         print("No files,skipping...")
