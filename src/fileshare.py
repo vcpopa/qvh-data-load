@@ -110,7 +110,7 @@ def archive_in_fileshare(
 
     # Extract the file name from the source path
     file_name = os.path.basename(source_path)
-
+    print("Archiving {source_path} to {destination_path}")
     # Create a new file client for the destination
     destination_file_client = share_client.get_file_client(
         os.path.join(destination_path, file_name)
