@@ -93,7 +93,7 @@ def process_file(file_path: str) -> pd.DataFrame:
     if file_path.endswith(".csv"):
         data = pd.read_csv(file_path)
     elif file_path.endswith(".xls") or file_path.endswith(".xlsx"):
-        data = pd.read_excel(file_path)
+        data = pd.read_excel(file_path,engine='openpyxl')
     else:
         raise DataFileError(
             f"{file_path} format is unsupported. Pass in a csv,xls or xlsx file."
