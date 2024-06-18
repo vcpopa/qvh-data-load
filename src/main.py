@@ -233,5 +233,7 @@ if data_changed is True:
 set UpdateDTTM = getdate()
 where Feed = 'Data'"""
     execute_query(query)
+    stored_proc="exec scd.UpdateCalculatedMeasures"
+    execute_query(stored_proc)
 else:
     raise ValueError("No new data found")
