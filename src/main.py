@@ -40,6 +40,7 @@ from utils import make_dir, generate_id, filter_files, process_file
 
 
 if __name__ == "__main__":
+    data_changed=False
     client_id = os.environ["AZURE_CLIENT_ID"]
     client_secret = os.environ["AZURE_CLIENT_SECRET"]
     tenant_id = os.environ["AZURE_TENANT_ID"]
@@ -92,6 +93,7 @@ if __name__ == "__main__":
                             index=False,
                         )
                         merge_data(source="staging.Metrics_Generic", target="scd.Metric")
+                        data_changed=True
                         archive_in_blob(
                 container_name="qvh", src_blob_name=file, dest_blob_name=archive_path
             )
@@ -135,6 +137,7 @@ if __name__ == "__main__":
                         if_exists="replace",
                         index=False,
                     )
+                data_changed=True
                 merge_data(source="staging.Metrics_Generic", target="scd.Metric")
                 log_file(file_name=file_name, source="SFTP")
                 previous_data = data
@@ -176,8 +179,17 @@ if __name__ == "__main__":
                         if_exists="replace",
                         index=False,
                     )
+                data_changed=True
                 # merge_data(source="staging.Metrics_Generic", target="scd.Metric")
                 # log_file(file_name=file_name, source="FileShare")
                 previous_data = data
     else:
         print("No files,skipping...")
+
+if data_changed is True:
+    query = """update scd.RefreshTimes
+set UpdateDTTM = getdate()
+where Feed = 'Data'"""
+    execute_query(query)
+else:
+    raise ValueError("No new data found")
