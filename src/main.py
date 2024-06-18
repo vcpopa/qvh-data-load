@@ -119,7 +119,7 @@ if __name__ == "__main__":
             archive_in_fileshare(
                 fileshare_name="qvh",
                 source_path=f"Uploads/IQPR/{file}",
-                destination_path=f"Uploads/IQPR/Processed/{file}",
+                destination_path=f"Uploads/IQPR/Processed",
             )
             data = process_file(f"./{run_id}/{file_name}")
             if previous_data is not None and previous_data.equals(data):
