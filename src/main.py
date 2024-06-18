@@ -59,37 +59,43 @@ if __name__ == "__main__":
                 download_path=f"./{run_id}/{file_name}",
             )
             archive_path = f"home/IQPR/Processed/{file_name}"
-            archive_in_blob(
+
+            data = process_file(f"./{run_id}/{file_name}")
+
+            data = data.reset_index(drop=False)
+            if not set(data.columns) == {'Metric Name','Period','Specialty/Trust','Numerator','Denominator'}:
+                print("Data does not match the headers, skipping")
+            else:
+                data=data.drop("Denominator", axis=1)
+                data.columns = [
+                    "Metric Name",
+                    "Period",
+                    "Specialty/Trust",
+                    "Numerator",
+                    "Denominator",
+                    "SourceFile",
+                ]
+
+                if previous_data is not None and previous_data.equals(data):
+                    print(
+                        f"File '{file_name}' is identical to the previous file. Skipping SQL write."
+                    )
+                else:
+                    with connection() as conn:
+                        assert "Metric Name" in data.columns, "Metric name col is missing"
+                        data.to_sql(
+                            name="Metrics_Generic",
+                            con=conn,
+                            schema="staging",
+                            if_exists="replace",
+                            index=False,
+                        )
+                        merge_data(source="staging.Metrics_Generic", target="scd.Metric")
+                        archive_in_blob(
                 container_name="qvh", src_blob_name=file, dest_blob_name=archive_path
             )
-            data = process_file(f"./{run_id}/{file_name}")
-            data = data.reset_index(drop=False).drop("Denominator", axis=1)
-            data.columns = [
-                "Metric Name",
-                "Period",
-                "Specialty/Trust",
-                "Numerator",
-                "Denominator",
-                "SourceFile",
-            ]
-
-            if previous_data is not None and previous_data.equals(data):
-                print(
-                    f"File '{file_name}' is identical to the previous file. Skipping SQL write."
-                )
-            else:
-                with connection() as conn:
-                    assert "Metric Name" in data.columns, "Metric name col is missing"
-                    data.to_sql(
-                        name="Metrics_Generic",
-                        con=conn,
-                        schema="staging",
-                        if_exists="replace",
-                        index=False,
-                    )
-                    merge_data(source="staging.Metrics_Generic", target="scd.Metric")
-                    log_file(file_name=file_name, source="SFTP")
-                    previous_data = data
+                        log_file(file_name=file_name, source="SFTP")
+                        previous_data = data
 
     else:
         print("No new files,skipping...")

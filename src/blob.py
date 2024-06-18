@@ -87,7 +87,9 @@ def download_file_from_blob_storage(
     print(f"File '{blob_name}' downloaded successfully to '{download_path}'")
 
 
-def archive_in_blob(container_name: str, src_blob_name: str, dest_blob_name: str) -> None:
+def archive_in_blob(
+    container_name: str, src_blob_name: str, dest_blob_name: str
+) -> None:
     """
     Moves a file (blob) from one location to another within Azure Blob Storage.
 
@@ -121,4 +123,6 @@ def archive_in_blob(container_name: str, src_blob_name: str, dest_blob_name: str
     # Delete the source blob
     src_blob_client.delete_blob()
 
-    print(f"File '{src_blob_name}' moved successfully to '{container_name}/{dest_blob_name}'")
+    print(
+        f"File '{src_blob_name}' moved successfully to '{container_name}/{dest_blob_name}'"
+    )

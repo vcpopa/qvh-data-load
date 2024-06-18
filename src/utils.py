@@ -19,7 +19,7 @@ import random
 import pandas as pd
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
-from exc import KeyVaultError,DataFileError  # pylint: disable=import-error
+from exc import KeyVaultError, DataFileError  # pylint: disable=import-error
 
 
 def get_credential(name: str) -> str:
@@ -95,7 +95,9 @@ def process_file(file_path: str) -> pd.DataFrame:
     elif file_path.endswith(".xls") or file_path.endswith(".xlsx"):
         data = pd.read_excel(file_path)
     else:
-        raise DataFileError(f"{file_path} format is unsupported. Pass in a csv,xls or xlsx file.")
+        raise DataFileError(
+            f"{file_path} format is unsupported. Pass in a csv,xls or xlsx file."
+        )
     file_name = os.path.basename(file_path)
     data["SourceFile"] = file_name
     return data

@@ -6,5 +6,6 @@ class KeyVaultError(Exception):
 class FileShareError(Exception):
     pass
 
+
 class DataFileError(Exception):
     pass
