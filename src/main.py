@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
             data = data.reset_index(drop=False)
             required_columns = {'Metric Name', 'Period', 'Specialty/Trust', 'Numerator', 'Denominator'}
-            if not required_columns.issubset(set(data.columns))::
+            if not required_columns.issubset(set(data.columns)):
                 print("Data does not match the headers, skipping")
             else:
                 data=data.drop("Denominator", axis=1)
