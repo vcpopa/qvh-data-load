@@ -135,7 +135,7 @@ if __name__ == "__main__":
                         if_exists="replace",
                         index=False,
                     )
-                execute_query(source="staging.Metrics_Generic", target="scd.Metric")
+                merge_data(source="staging.Metrics_Generic", target="scd.Metric")
                 log_file(file_name=file_name, source="SFTP")
                 previous_data = data
     else:
