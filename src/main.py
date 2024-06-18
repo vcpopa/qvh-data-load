@@ -131,7 +131,7 @@ if __name__ == "__main__":
             else:
                 with connection() as conn:
                     data.to_sql(
-                        name="Metrics_ElectiveRecovery",
+                        name="Metrics_Generic",
                         con=conn,
                         schema="staging",
                         if_exists="replace",
