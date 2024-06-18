@@ -154,6 +154,6 @@ def log_file(file_name: str, source: Literal["SFTP", "FileShare"]) -> None:
     """
     query = f"""
         INSERT INTO scd.MetricFileLog (FileName, Source, DateUploaded)
-        VALUES ({file_name},{source}, GETDATE())
+        VALUES ('{file_name}','{source}', GETDATE())
         """
     execute_query(query=query)
