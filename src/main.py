@@ -154,7 +154,7 @@ if __name__ == "__main__":
             file_name = file.split("/")[-1]
             download_from_fileshare(
                 fileshare_name="qvh",
-                fileshare_path=f"Uploads/IQPR/{file}",
+                fileshare_path=f"Uploads/IQPR/ElectiveRecovery/{file}",
                 local_file_path=f"./{run_id}/{file_name}",
             )
             # archive_in_fileshare(
