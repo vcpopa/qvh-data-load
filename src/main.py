@@ -138,7 +138,57 @@ if __name__ == "__main__":
                         index=False,
                     )
                 data_changed=True
-                merge_data(source="staging.Metrics_Generic", target="scd.Metric")
+                merge_query ="""MERGE INTO [scd].[Metric] AS target
+USING (
+    SELECT measure_id,
+        measure_description ,
+        [Period],
+        [Specialty/Trust],
+        [Numerator],
+        [Denominator],
+        [SourceFile]
+   FROM  [staging].[Metrics_Generic] b 
+   INNER JOIN scd.measure m 
+   ON m.measure_description = b.[metric name]
+   WHERE numerator is not null
+   
+) AS source
+ON target.measure_id = source.measure_id
+   AND target.[Period] = source.[Period]
+   AND target.dim1 = source.[Specialty/Trust]
+WHEN MATCHED AND (isnull(source.Numerator,'') <> isnull(target.Numerator,'')  
+OR isnull(source.denominator,'') <> isnull(target.denominator, '' ) )
+THEN
+    UPDATE SET
+        target.[Numerator] = source.[Numerator],
+        target.[Denominator] = source.[Denominator],
+        target.[UpdatedBy] = source.[Sourcefile],
+        target.[UpdateDTTM] = GETDATE(),
+        target.UpdateType = 'Update'
+WHEN NOT MATCHED BY TARGET THEN
+    INSERT (
+        [Measure_ID]
+        ,[Period]
+        ,DIM1
+        ,[Numerator]
+        ,[Denominator]
+        ,[UpdatedBy]
+        ,[UpdateDTTM]
+        ,[UpdateType]
+    )
+    VALUES (
+        source.[Measure_id],
+        source.[Period],
+        source.[Specialty/Trust],
+        source.[Numerator],
+        source.[Denominator],
+        source.[Sourcefile],
+        GETDATE(),
+        'Insert'
+ 
+    );
+                """
+                execute_query(merge_query)
                 log_file(file_name=file_name, source="SFTP")
                 previous_data = data
     else:
