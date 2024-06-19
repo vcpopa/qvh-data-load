@@ -150,8 +150,7 @@ USING (
    FROM  [staging].[Metrics_Generic] b 
    INNER JOIN scd.measure m 
    ON m.measure_description = b.[metric name]
-   WHERE numerator is not null
-   
+   WHERE ISNULL(numerator,'') <> ''
 ) AS source
 ON target.measure_id = source.measure_id
    AND target.[Period] = source.[Period]
@@ -164,7 +163,7 @@ THEN
         target.[Denominator] = source.[Denominator],
         target.[UpdatedBy] = source.[Sourcefile],
         target.[UpdateDTTM] = GETDATE(),
-        target.UpdateType = 'Update'
+        target.UpdateType = 'Updated'
 WHEN NOT MATCHED BY TARGET THEN
     INSERT (
         [Measure_ID]
@@ -184,8 +183,7 @@ WHEN NOT MATCHED BY TARGET THEN
         source.[Denominator],
         source.[Sourcefile],
         GETDATE(),
-        'Insert'
- 
+        'Inserted'
     );
                 """
                 execute_query(merge_query)
