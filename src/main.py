@@ -25,6 +25,7 @@ Execution:
     - Logs the processed files.
 """
 import os
+import sqlalchemy
 from blob import (
     list_files_in_blob_storage,
     download_file_from_blob_storage,
