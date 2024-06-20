@@ -25,7 +25,6 @@ Execution:
     - Logs the processed files.
 """
 import os
-import sqlalchemy
 from blob import (
     list_files_in_blob_storage,
     download_file_from_blob_storage,
@@ -86,15 +85,12 @@ if __name__ == "__main__":
                 else:
                     with connection() as conn:
                         assert "Metric Name" in data.columns, "Metric name col is missing"
-                        data = data.astype(str)
-                        dtypes = {col_name: sqlalchemy.types.VARCHAR for col_name in data.columns}
                         data.to_sql(
                             name="Metrics_Generic",
                             con=conn,
                             schema="staging",
                             if_exists="replace",
                             index=False,
-                            dtype=dtypes
                         )
                         merge_data(source="staging.Metrics_Generic", target="scd.Metric")
                         data_changed=True
@@ -134,36 +130,33 @@ if __name__ == "__main__":
                 )
             else:
                 with connection() as conn:
-                    data = data.astype(str)
-                    dtypes = {col_name: sqlalchemy.types.VARCHAR for col_name in data.columns}                    
                     data.to_sql(
                         name="Metrics_Generic",
                         con=conn,
                         schema="staging",
                         if_exists="replace",
                         index=False,
-                        dtype=dtypes
                     )
                 data_changed=True
                 merge_query ="""MERGE INTO [scd].[Metric] AS target
 USING (
     SELECT measure_id,
         measure_description ,
-        CONVERT(DATE,[Period]) AS [Period],
+        [Period],
         [Specialty/Trust],
-        NULLIF([Numerator],'nan') AS [Numerator],
-        NULLIF([Denominator],'nan') AS [Denominator],
+        [Numerator],
+        [Denominator],
         [SourceFile]
    FROM  [staging].[Metrics_Generic] b 
    INNER JOIN scd.measure m 
    ON m.measure_description = b.[metric name]
-   WHERE ISNULL(numerator,'') <> ''
+   WHERE numerator IS NOT NULL
 ) AS source
 ON target.measure_id = source.measure_id
    AND target.[Period] = source.[Period]
    AND target.dim1 = source.[Specialty/Trust]
-WHEN MATCHED AND (isnull(source.Numerator,'') <> isnull(target.Numerator,'')  
-OR isnull(source.denominator,'') <> isnull(target.denominator, '' ) )
+WHEN MATCHED AND (source.Numerator <> target.Numerator
+OR source.denominator <> target.denominator )
 THEN
     UPDATE SET
         target.[Numerator] = source.[Numerator],
