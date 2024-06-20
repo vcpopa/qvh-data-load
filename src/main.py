@@ -133,12 +133,15 @@ if __name__ == "__main__":
                 )
             else:
                 with connection() as conn:
+                    data = data.astype(str)
+                    dtypes = {col_name: sqlalchemy.types.VARCHAR for col_name in data.columns}                    
                     data.to_sql(
                         name="Metrics_Generic",
                         con=conn,
                         schema="staging",
                         if_exists="replace",
                         index=False,
+                        dtype=dtypes
                     )
                 data_changed=True
                 merge_query ="""MERGE INTO [scd].[Metric] AS target
