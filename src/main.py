@@ -149,10 +149,10 @@ if __name__ == "__main__":
 USING (
     SELECT measure_id,
         measure_description ,
-        [Period],
+        CONVERT(DATE,[Period]) AS [Period],
         [Specialty/Trust],
-        [Numerator],
-        [Denominator],
+        NULLIF([Numerator],'nan') AS [Numerator],
+        NULLIF([Denominator],'nan') AS [Denominator],
         [SourceFile]
    FROM  [staging].[Metrics_Generic] b 
    INNER JOIN scd.measure m 
