@@ -85,12 +85,15 @@ if __name__ == "__main__":
                 else:
                     with connection() as conn:
                         assert "Metric Name" in data.columns, "Metric name col is missing"
+                        data = data.astype(str)
+                        dtypes = {col_name: sqlalchemy.types.VARCHAR for col_name in data.columns}
                         data.to_sql(
                             name="Metrics_Generic",
                             con=conn,
                             schema="staging",
                             if_exists="replace",
                             index=False,
+                            dtype=dtypes
                         )
                         merge_data(source="staging.Metrics_Generic", target="scd.Metric")
                         data_changed=True
