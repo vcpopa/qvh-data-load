@@ -243,7 +243,8 @@ WHEN MATCHED THEN
         target.[Plan] = CASE WHEN source.[Plan] IS NOT NULL THEN source.[Plan] ELSE target.[Plan] END,
         target.[Activity] = CASE WHEN source.[Activity] IS NOT NULL THEN source.[Activity] ELSE target.[Activity] END,
         target.[Variance] = CASE WHEN source.[Variance] IS NOT NULL THEN source.[Variance] ELSE target.[Variance] END,
-        target.[SourceFile] = source.[SourceFile]
+        target.[SourceFile] = source.[SourceFile],
+        target.[FYear] = (SELECT TOP 1 fiscalyear FROM scd.PeriodTable WHERE enddate = eomonth(dateadd(month,-1,getdate())))
 WHEN NOT MATCHED BY TARGET THEN
     INSERT (
         [ElectiveRecoveryGroup],
@@ -255,7 +256,8 @@ WHEN NOT MATCHED BY TARGET THEN
         [Plan],
         [Activity],
         [Variance],
-        [SourceFile]
+        [SourceFile],
+        [FYear]
     )
     VALUES (
         source.[ElectiveRecoveryGroup],
@@ -267,7 +269,8 @@ WHEN NOT MATCHED BY TARGET THEN
         source.[Plan],
         source.[Activity],
         source.[Variance],
-        source.[SourceFile]
+        source.[SourceFile],
+        (SELECT TOP 1 fiscalyear FROM scd.PeriodTable WHERE enddate = eomonth(dateadd(month,-1,getdate())))
     );
                 """
                 execute_query(merge_query)
