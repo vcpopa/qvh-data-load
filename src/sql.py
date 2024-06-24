@@ -104,12 +104,12 @@ USING (
         [Denominator],
         [SourceFile]
    FROM  {source} b inner join scd.measure m on m.measure_description = b.[Metric Name]
-    WHERE ISNULL(Numerator,'') <> ''
+    WHERE Numerator is not null 
 ) AS source
 ON target.measure_id = source.measure_id
    AND CAST(target.[Period] AS DATE) = CAST(source.[Period] AS DATE)
    AND target.dim1 = source.[Specialty/Trust]
-WHEN MATCHED AND (source.Numerator <> target.Numerator OR isnull(source.denominator,'') <> isnull(target.denominator, '' ) )
+WHEN MATCHED AND (source.Numerator <> target.Numerator OR source.denominator  <> target.denominator )
 THEN
     UPDATE SET
         target.[Numerator] = source.[Numerator],
