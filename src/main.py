@@ -244,9 +244,9 @@ USING [staging].[Metrics_ElectiveRecovery] AS source
                 )
             )
 WHEN MATCHED
-    AND isnull(target.[Plan], '') <> isnull(source.[Plan], '')
-    OR isnull(target.Activity, '') <> isnull(source.Activity, '')
-    OR isnull(target.Variance, '') <> isnull(source.Variance, '')
+    AND target.[Plan] <> source.[Plan]
+    OR target.Activity <> source.Activity
+    OR target.Variance <> source.Variance
     THEN
         UPDATE
         SET target.[Plan] = CASE 
