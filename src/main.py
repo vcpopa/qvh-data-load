@@ -83,6 +83,8 @@ if __name__ == "__main__":
                         f"File '{file_name}' is identical to the previous file. Skipping SQL write."
                     )
                 else:
+                    data['Period'] = pd.to_datetime(data['Period'])
+                    data['Period'] = data['Period'].dt.strftime('%d-%m-%Y')
                     with connection() as conn:
                         assert "Metric Name" in data.columns, "Metric name col is missing"
                         data.to_sql(
@@ -129,6 +131,8 @@ if __name__ == "__main__":
                     f"File '{file_name}' is identical to the previous file. Skipping SQL write."
                 )
             else:
+                data['Period'] = pd.to_datetime(data['Period'])
+                data['Period'] = data['Period'].dt.strftime('%d-%m-%Y')
                 with connection() as conn:
                     data.to_sql(
                         name="Metrics_Generic",
@@ -219,6 +223,8 @@ WHEN NOT MATCHED BY TARGET THEN
                     f"File '{file_name}' is identical to the previous file. Skipping SQL write."
                 )
             else:
+                data['Period'] = pd.to_datetime(data['Period'])
+                data['Period'] = data['Period'].dt.strftime('%d-%m-%Y')
                 with connection() as conn:
                     data.to_sql(
                         name="Metrics_ElectiveRecovery",
