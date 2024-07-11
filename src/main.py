@@ -67,7 +67,7 @@ if __name__ == "__main__":
             if not required_columns.issubset(set(data.columns)):
                 print("Data does not match the headers, skipping")
             else:
-                data=data.drop("Denominator", axis=1)
+                data['SourceFile']=file_name
                 data.columns = [
                     "Metric Name",
                     "Period",
