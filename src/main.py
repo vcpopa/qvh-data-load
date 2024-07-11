@@ -133,6 +133,7 @@ if __name__ == "__main__":
                     f"File '{file_name}' is identical to the previous file. Skipping SQL write."
                 )
             else:
+                data['Period'] = data['Period'].apply(lambda s: str(s).lstrip('01/'))
                 data['Period'] = pd.to_datetime(data['Period'])
                 data['Period'] = data['Period'].dt.strftime('%d-%m-%Y')
                 with connection() as conn:
@@ -225,6 +226,7 @@ WHEN NOT MATCHED BY TARGET THEN
                     f"File '{file_name}' is identical to the previous file. Skipping SQL write."
                 )
             else:
+                data['Period'] = data['Period'].apply(lambda s: str(s).lstrip('01/'))
                 data['Period'] = pd.to_datetime(data['Period'])
                 data['Period'] = data['Period'].dt.strftime('%d-%m-%Y')
                 with connection() as conn:
