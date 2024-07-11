@@ -64,12 +64,12 @@ if __name__ == "__main__":
 
             data = process_file(f"./{run_id}/{file_name}")
             
-            data = data.reset_index(drop=False)
+            # data = data.reset_index(drop=False)
             required_columns = {'Metric Name', 'Period', 'Specialty/Trust', 'Numerator', 'Denominator'}
             if not required_columns.issubset(set(data.columns)):
                 print("Data does not match the headers, skipping")
             else:
-                data=data.drop("Denominator", axis=1)
+                # data=data.drop("Denominator", axis=1)
                 data.columns = [
                     "Metric Name",
                     "Period",
@@ -78,6 +78,7 @@ if __name__ == "__main__":
                     "Denominator",
                     "SourceFile",
                 ]
+                data['Period'] = df['Period'].apply(lambda s: str(s).lstrip('01/'))
                 data['Period'] = pd.to_datetime(data['Period'])
                 data['Period'] = data['Period'].dt.strftime('%d-%m-%Y')
 
