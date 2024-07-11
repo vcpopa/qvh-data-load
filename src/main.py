@@ -63,7 +63,6 @@ if __name__ == "__main__":
 
             data = process_file(f"./{run_id}/{file_name}")
 
-            data = data.reset_index(drop=False)
             required_columns = {'Metric Name', 'Period', 'Specialty/Trust', 'Numerator', 'Denominator'}
             if not required_columns.issubset(set(data.columns)):
                 print("Data does not match the headers, skipping")
