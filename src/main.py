@@ -78,7 +78,7 @@ if __name__ == "__main__":
                     "Denominator",
                     "SourceFile",
                 ]
-                data['Period'] = df['Period'].apply(lambda s: str(s).lstrip('01/'))
+                data['Period'] = data['Period'].apply(lambda s: str(s).lstrip('01/'))
                 data['Period'] = pd.to_datetime(data['Period'])
                 data['Period'] = data['Period'].dt.strftime('%d-%m-%Y')
 
