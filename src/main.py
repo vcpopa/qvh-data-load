@@ -63,7 +63,7 @@ if __name__ == "__main__":
             archive_path = f"home/IQPR/Processed/{file_name}"
 
             data = process_file(f"./{run_id}/{file_name}")
-
+            
             data = data.reset_index(drop=False)
             required_columns = {'Metric Name', 'Period', 'Specialty/Trust', 'Numerator', 'Denominator'}
             if not required_columns.issubset(set(data.columns)):
@@ -78,15 +78,14 @@ if __name__ == "__main__":
                     "Denominator",
                     "SourceFile",
                 ]
+                data['Period'] = pd.to_datetime(data['Period'])
+                data['Period'] = data['Period'].dt.strftime('%d-%m-%Y')
 
                 if previous_data is not None and previous_data.equals(data):
                     print(
                         f"File '{file_name}' is identical to the previous file. Skipping SQL write."
                     )
                 else:
-                    print(data.head())
-                    data['Period'] = pd.to_datetime(data['Period'])
-                    data['Period'] = data['Period'].dt.strftime('%d-%m-%Y')
                     with connection() as conn:
                         assert "Metric Name" in data.columns, "Metric name col is missing"
                         data.to_sql(
