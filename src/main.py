@@ -145,11 +145,13 @@ if __name__ == "__main__":
                         index=False,
                     )
                 data_changed=True
-                merge_query ="""MERGE INTO [scd].[Metric] AS target
+                merge_query ="""
+                set dateformat DMY 
+                MERGE INTO [scd].[Metric] AS target
 USING (
     SELECT measure_id,
         measure_description ,
-        [Period],
+        cast([Period] as date) ,
         [Specialty/Trust],
         [Numerator],
         [Denominator],
@@ -160,7 +162,7 @@ USING (
    WHERE numerator IS NOT NULL
 ) AS source
 ON target.measure_id = source.measure_id
-   AND target.[Period] = source.[Period]
+    AND CAST(target.[Period] AS DATE) = CAST(source.[Period] AS DATE)
    AND target.dim1 = source.[Specialty/Trust]
 WHEN MATCHED AND (source.Numerator <> target.Numerator
 OR source.denominator <> target.denominator )
@@ -184,7 +186,7 @@ WHEN NOT MATCHED BY TARGET THEN
     )
     VALUES (
         source.[Measure_id],
-        source.[Period],
+        cast(source.[Period] as date) , 
         source.[Specialty/Trust],
         source.[Numerator],
         source.[Denominator],
