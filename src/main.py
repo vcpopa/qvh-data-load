@@ -151,7 +151,7 @@ if __name__ == "__main__":
 USING (
     SELECT measure_id,
         measure_description ,
-        cast([Period] as date) ,
+        cast([Period] as date) as Period ,
         [Specialty/Trust],
         [Numerator],
         [Denominator],
